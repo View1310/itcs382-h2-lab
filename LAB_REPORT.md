@@ -78,7 +78,7 @@ public List<Parcel> findAll() {
 }
 ```
 
-Commit that adds findAll:
+Commit that adds findAll: 698fced
 
 0.12 Output of `SELECT * FROM PARCEL;` after the pickup:
 
