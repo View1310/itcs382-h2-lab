@@ -6,29 +6,33 @@ Repository URL:
 
 | Item | Version or name |
 | --- | --- |
-| JDK | |
-| Maven | |
+| JDK | OpenJDK 25.0.5-ea |
+| Maven | Apache Maven 3.9.12 |
 | IDE | |
-| AI tool and exact model, if you used one | |
+| AI tool and exact model, if you used one | ChatGPT, GPT-5.6 Sol |
 
 ## Part 0. From a store in memory to H2
 
-Commit of the starter, before any change:
+Commit of the starter, before any change: 1ce9e03
 
-0.3 Your prediction for `staff`, written before the second run:
+0.3 Your prediction for `staff`, written before the second run: I predict that the parcels will be gone and all three lockers will be free because the parcels are currently stored only in memory.
 
 Output of the second run, for `staff` and `quit`:
 
 ```text
-
+> staff
+Free lockers: 3
+> quit
 ```
 
 State in one sentence where you think the parcels of the first run were kept.
 
+The parcels were kept in the memory of the running program, so they disappeared when the program ended.
+
 0.5 The line of Main that you would change to keep the parcels somewhere else:
 
 ```java
-
+ParcelRepository repository = new InMemoryParcelRepository();
 ```
 
 0.6 Commit of the switch to H2:
