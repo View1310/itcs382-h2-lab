@@ -35,22 +35,47 @@ The parcels were kept in the memory of the running program, so they disappeared 
 ParcelRepository repository = new InMemoryParcelRepository();
 ```
 
-0.6 Commit of the switch to H2:
+0.6 Commit of the switch to H2: bbc1327
 
 0.7 Output of `SELECT * FROM PARCEL;` after you stored two parcels:
 
 ```text
-
+sql> SELECT * FROM PARCEL;
+CODE  | STUDENT_ID | PARCEL_SIZE | STATUS | LOCKER_NUMBER
+P1001 | S1001      | SMALL       | STORED | 1
+P1002 | S1002      | LARGE       | STORED | 3
+(2 rows, 20 ms)
 ```
 
 0.8 Explain why ParcelPoint could not start while the H2 Shell was open, and identify the class that wrote the message `Cannot create the PARCEL table`.
 
+**Ans** ParcelPoint could not start because the H2 Shell was still using the database, so the database file was locked and ParcelPoint could not open it at the same time. The `H2ParcelRepository` class wrote the message `Cannot create the PARCEL table`.
+
 0.9 Explain why `staff` shows no parcel while `find` shows each one, and why all three lockers look free.
+
+**Ans** `find` can show the parcels because `findByCode` reads them from the H2 database. However, `staff` uses `findAll`, which currently returns an empty list instead of reading the parcels from H2. `ParcelService` also uses `findAll` when it starts to restore stored parcels to their lockers, so no parcels are restored and all three lockers appear free.
 
 0.11 Your findAll method:
 
 ```java
+@Override
+public List<Parcel> findAll() {
+    String sql = "SELECT * FROM PARCEL ORDER BY CODE";
+    List<Parcel> parcels = new ArrayList<>();
 
+    try (Connection connection = connect();
+            PreparedStatement statement = connection.prepareStatement(sql)) {
+        try (ResultSet row = statement.executeQuery()) {
+            while (row.next()) {
+                parcels.add(toParcel(row));
+            }
+        }
+    } catch (SQLException e) {
+        throw new IllegalStateException("Cannot read the parcels", e);
+    }
+
+    return parcels;
+}
 ```
 
 Commit that adds findAll:

@@ -30,7 +30,7 @@ public class H2ParcelRepository implements ParcelRepository {
     public H2ParcelRepository(String path) {
         url = "jdbc:h2:" + path;
         try (Connection connection = connect();
-             Statement statement = connection.createStatement()) {
+                Statement statement = connection.createStatement()) {
             statement.execute(CREATE_TABLE);
         } catch (SQLException e) {
             throw new IllegalStateException("Cannot create the PARCEL table", e);
@@ -45,7 +45,7 @@ public class H2ParcelRepository implements ParcelRepository {
     public void save(Parcel parcel) {
         String sql = "MERGE INTO PARCEL KEY (CODE) VALUES (?, ?, ?, ?, ?)";
         try (Connection connection = connect();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+                PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, parcel.getCode());
             statement.setString(2, parcel.getStudentId());
             statement.setString(3, parcel.getSize().name());
@@ -61,7 +61,7 @@ public class H2ParcelRepository implements ParcelRepository {
     public Optional<Parcel> findByCode(String code) {
         String sql = "SELECT * FROM PARCEL WHERE CODE = ?";
         try (Connection connection = connect();
-             PreparedStatement statement = connection.prepareStatement(sql)) {
+                PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, code);
             try (ResultSet row = statement.executeQuery()) {
                 return row.next() ? Optional.of(toParcel(row)) : Optional.empty();
@@ -73,9 +73,21 @@ public class H2ParcelRepository implements ParcelRepository {
 
     @Override
     public List<Parcel> findAll() {
-        // TODO Step 0.11: read every row of the PARCEL table as findByCode does,
-        // TODO turn each row into a Parcel with toParcel, and return the list.
-        return List.of();
+        String sql = "SELECT * FROM PARCEL ORDER BY CODE";
+        List<Parcel> parcels = new ArrayList<>();
+
+        try (Connection connection = connect();
+                PreparedStatement statement = connection.prepareStatement(sql)) {
+            try (ResultSet row = statement.executeQuery()) {
+                while (row.next()) {
+                    parcels.add(toParcel(row));
+                }
+            }
+        } catch (SQLException e) {
+            throw new IllegalStateException("Cannot read the parcels", e);
+        }
+
+        return parcels;
     }
 
     private Parcel toParcel(ResultSet row) throws SQLException {
